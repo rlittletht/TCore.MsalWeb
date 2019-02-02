@@ -6,7 +6,6 @@
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <ProjectGuid>2a614abe-23ae-4064-bd31-4ea1bcc4dae0</ProjectGuid>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
