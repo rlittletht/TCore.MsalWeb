@@ -43,10 +43,11 @@ namespace TCore.MsalWeb
     {
         void BeforeLogin(object sender, EventArgs e);
         void BeforeLogout(object sender, EventArgs e);
-        TAuthPrivData CreateEmpty();
+        TAuthPrivData CreateEmptyAuthPrivData();
         void SetAuthenticated(bool fAuthenticated);
-        bool AuthIsAuthenticated();
         bool AuthHasPrivileges();
+        bool IsCacheDataValid(TAuthPrivData data, string sIdentity, string sTenant);
+        void LoadPrivileges();
     }
 
     public class Auth<TAuthPrivData>
@@ -76,7 +77,7 @@ namespace TCore.MsalWeb
             m_session = session;
             m_iclient = authClient;
 
-            LoadCachedPrivs();
+            InitializePrivsIfNotAuth();
         }
 
         #region State Management
@@ -139,7 +140,7 @@ namespace TCore.MsalWeb
 
         public TAuthPrivData AuthPrivData
         {
-            get => TGetSessionState("privs", m_iclient.CreateEmpty());
+            get => TGetSessionState("privs", m_iclient.CreateEmptyAuthPrivData());
             set => SetSessionState("privs", value);
         }
 
@@ -171,12 +172,58 @@ namespace TCore.MsalWeb
         }
         #endregion
 
-        void LoadCachedPrivs()
+        /*----------------------------------------------------------------------------
+        	%%Function: LoadAuthPrivs
+        	%%Qualified: TCore.MsalWeb.Auth<TAuthPrivData>.LoadAuthPrivs
+        	
+            Load both authentication and privileges. If there is cached data, then
+            determine if the cache is valid for this authenticated user. 
+
+            The authentication comes from our http request. We will delegate to the
+            client the privileges
+
+            Once authentication is determined, client will be called to load
+            the privs. The client should store all the required state information
+            in AuthPrivData, maintained by this class (and persisted through sesion)
+
+            NOTE: if you want to force a reload of the data, just set the 
+            AuthPrivData to empty and call; this will force the cache check to fail
+        ----------------------------------------------------------------------------*/
+        public void LoadAuthPrivs()
+        {
+            if (!IsAuthenticated())
+            {
+                AuthPrivData = m_iclient.CreateEmptyAuthPrivData();
+                m_iclient.SetAuthenticated(false);
+                return;
+            }
+
+            // load the cache
+            TAuthPrivData data = AuthPrivData;
+
+            if (m_iclient.IsCacheDataValid(data, Identity(), Tenant()))
+                return; // we're done...
+
+            m_iclient.SetAuthenticated(true);
+
+            // at this point, methods Identity and Tenant will both accurately
+            // return auth info, so they should be used by LoadPrivileges()
+            m_iclient.LoadPrivileges();
+        }
+
+        /*----------------------------------------------------------------------------
+        	%%Function: InitializePrivsIfNotAuth
+        	%%Qualified: TCore.MsalWeb.Auth<TAuthPrivData>.InitializePrivsIfNotAuth
+        	
+            if we are not authenticated, then there are no privileges. make sure
+            nothing leaks out.
+        ----------------------------------------------------------------------------*/
+        void InitializePrivsIfNotAuth()
         {
             if (!IsAuthenticated())
             {
                 // make sure current privs aren't leaked from before
-                TAuthPrivData data = m_iclient.CreateEmpty();
+                TAuthPrivData data = m_iclient.CreateEmptyAuthPrivData();
 
                 AuthPrivData = data;
             }
