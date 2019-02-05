@@ -32,22 +32,24 @@ namespace TCore.MsalWeb
     //
     // Once the class establishes Authentication with Identity/Authority, this will delegate back
     // to the client the responsibility of loading specific privileges for this user. Those will
-    // also be stored.
+    // also be stored. The combination of Auth and Priv data will be stored in a client 
+    // supplied AuthPrivs type.  (Setting of Auth data in this type will also be delegated
+    // to the client via IAuthClient)
 
     // This core Auth class delegates all UI and actions to the caller through an IAuthClient
     // interface. This includes updating UI when auth information is available.
 
-    public interface IAuthClient<TUserData>
+    public interface IAuthClient<TAuthPrivData>
     {
         void BeforeLogin(object sender, EventArgs e);
         void BeforeLogout(object sender, EventArgs e);
-        TUserData CreateEmpty();
+        TAuthPrivData CreateEmpty();
         void SetAuthenticated(bool fAuthenticated);
         bool AuthIsAuthenticated();
         bool AuthHasPrivileges();
     }
 
-    public class Auth<TUserData>
+    public class Auth<TAuthPrivData>
     {
         private HttpRequest m_request;
         private string m_sAuthReturnAddress;
@@ -55,12 +57,8 @@ namespace TCore.MsalWeb
         private IOwinContext m_owinContext;
         private StateBag m_viewState;
         private HttpSessionState m_session;
-        private IAuthClient<TUserData> m_iclient;
+        private IAuthClient<TAuthPrivData> m_iclient;
 
-        enum AuthPrivs
-        {
-
-        }
         public Auth(
             HttpRequest request,
             HttpSessionState session,
@@ -68,7 +66,7 @@ namespace TCore.MsalWeb
             IOwinContext iOwinContext,
             StateBag viewState,
             string sReturnAddress,
-            IAuthClient<TUserData> authClient)
+            IAuthClient<TAuthPrivData> authClient)
         {
             m_sAuthReturnAddress = sReturnAddress;
             m_request = request;
@@ -81,11 +79,22 @@ namespace TCore.MsalWeb
             LoadCachedPrivs();
         }
 
+        #region State Management
+        /*----------------------------------------------------------------------------
+        	%%Function: SetState
+        	%%Qualified: TCore.MsalWeb.Auth<TUserData>.SetState<T>
+        	
+        ----------------------------------------------------------------------------*/
         void SetState<T>(string sState, T tValue)
         {
             m_viewState[sState] = tValue;
         }
 
+        /*----------------------------------------------------------------------------
+        	%%Function: TGetSessionState
+        	%%Qualified: TCore.MsalWeb.Auth<TUserData>.TGetSessionState<T>
+        	
+        ----------------------------------------------------------------------------*/
         T TGetSessionState<T>(string sState, T tDefault)
         {
             T tValue = tDefault;
@@ -98,11 +107,21 @@ namespace TCore.MsalWeb
             return tValue;
         }
 
+        /*----------------------------------------------------------------------------
+        	%%Function: SetSessionState
+        	%%Qualified: TCore.MsalWeb.Auth<TUserData>.SetSessionState<T>
+        	        	
+        ----------------------------------------------------------------------------*/
         void SetSessionState<T>(string sState, T tValue)
         {
             m_session[sState] = tValue;
         }
 
+        /*----------------------------------------------------------------------------
+        	%%Function: TGetState
+        	%%Qualified: TCore.MsalWeb.Auth<TUserData>.TGetState<T>
+        	        	
+        ----------------------------------------------------------------------------*/
         T TGetState<T>(string sState, T tDefault)
         {
             T tValue = tDefault;
@@ -114,8 +133,11 @@ namespace TCore.MsalWeb
 
             return tValue;
         }
+        #endregion
 
-        public TUserData CurrentPrivs
+        #region Interogate Auth Information/State
+
+        public TAuthPrivData AuthPrivData
         {
             get => TGetSessionState("privs", m_iclient.CreateEmpty());
             set => SetSessionState("privs", value);
@@ -127,7 +149,6 @@ namespace TCore.MsalWeb
         }
 
         public bool IsLoggedIn => m_iclient.AuthHasPrivileges();
-
 
         public string Identity()
         {
@@ -148,21 +169,25 @@ namespace TCore.MsalWeb
 
             return null;
         }
+        #endregion
+
         void LoadCachedPrivs()
         {
             if (!IsAuthenticated())
             {
                 // make sure current privs aren't leaked from before
-                TUserData data = m_iclient.CreateEmpty();
+                TAuthPrivData data = m_iclient.CreateEmpty();
 
-                CurrentPrivs = data;
+                AuthPrivData = data;
             }
         }
 
-        /// <summary>
-        /// Send an OpenID Connect sign-in request.
-        /// Alternatively, you can just decorate the SignIn method with the [Authorize] attribute
-        /// </summary>
+        /*----------------------------------------------------------------------------
+        	%%Function: SignIn
+        	%%Qualified: TCore.MsalWeb.Auth<TAuthPrivData>.SignIn
+        
+            Send an OpenID Connect sign-in request.
+        ----------------------------------------------------------------------------*/
         public void SignIn(object sender, EventArgs e)
         {
             m_iclient.BeforeLogin(sender, e);
@@ -175,9 +200,12 @@ namespace TCore.MsalWeb
             }
         }
 
-        /// <summary>
-        /// Send an OpenID Connect sign-out request.
-        /// </summary>
+        /*----------------------------------------------------------------------------
+        	%%Function: SignOut
+        	%%Qualified: TCore.MsalWeb.Auth<TAuthPrivData>.SignOut
+        	
+            Send an OpenID Connect sign-out request.
+        ----------------------------------------------------------------------------*/
         public void SignOut(object sender, EventArgs e)
         {
             m_iclient.BeforeLogout(sender, e);
@@ -195,7 +223,7 @@ namespace TCore.MsalWeb
         ----------------------------------------------------------------------------*/
         string GetUserId()
         {
-            return ClaimsPrincipal.Current.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return ClaimsPrincipal.Current?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         }
 
         /*----------------------------------------------------------------------------
