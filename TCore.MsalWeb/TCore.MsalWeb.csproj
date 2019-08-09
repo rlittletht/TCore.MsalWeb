@@ -17,6 +17,10 @@
     <Description>MSAL 2.0 and aspx web page supoort</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Deterministic>true</Deterministic>
+    <PackageReleaseNotes>Initial implementation refactored from RWLLPracticeTool
+
+This release matches https://github.com/rlittletht/TCore.MsalWeb/commit/42e29ca565bd8785a0f1dc85711fed9fe5f79e42
+</PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
