@@ -42,6 +42,12 @@ namespace TCore.MsalWeb
             m_apiRoot = apiRoot;
         }
 
+        public WebApiInterop(string apiRoot, IAccessTokenProvider provider)
+        {
+            m_accessTokenProvider = provider;
+            m_apiRoot = apiRoot;
+        }
+
         /*----------------------------------------------------------------------------
             %%Function: ProcessResponse
         	%%Qualified: TCore.MsalWeb.WebApiInterop.ProcessResponse
