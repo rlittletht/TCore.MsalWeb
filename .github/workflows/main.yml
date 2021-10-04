@@ -31,6 +31,6 @@ jobs:
       - name: Build TCore.MsalWeb
         run: dotnet build --configuration Release --no-restore
       - name: Publish TCore.MsalWeb
-        run: dotnet nuget push bin/Release/*.nupkg -s https://thetaget.azurewebsites.net/nuget -k ${NUGET_KEY} --no-symbols --skip-duplicate
+        run: dotnet nuget push TCore.MsalWeb/bin/Release/*.nupkg -s https://thetaget.azurewebsites.net/nuget -k ${NUGET_KEY} --no-symbols --skip-duplicate
         env:
           NUGET_KEY: ${{secrets.THETAGET_API_KEY}}
