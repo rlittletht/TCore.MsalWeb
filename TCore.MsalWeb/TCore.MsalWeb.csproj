@@ -14,13 +14,15 @@
     <Authors>Robert Little</Authors>
     <Company>Robert Little</Company>
     <Product>TCore.MsalWeb</Product>
-    <Description>MSAL 2.0 and aspx web page supoort</Description>
+    <Description>MSAL 2.0 and aspx web page supoort
+Supports authenticated web apis as well</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Deterministic>true</Deterministic>
-    <PackageReleaseNotes>Initial implementation refactored from RWLLPracticeTool
-
-This release matches https://github.com/rlittletht/TCore.MsalWeb/commit/42e29ca565bd8785a0f1dc85711fed9fe5f79e42
+    <PackageReleaseNotes>Includes support for authenticated web apis
 </PackageReleaseNotes>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <Version>2.0.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
