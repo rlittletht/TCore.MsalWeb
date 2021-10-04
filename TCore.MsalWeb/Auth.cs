@@ -39,26 +39,26 @@ namespace TCore.MsalWeb
     // This core Auth class delegates all UI and actions to the caller through an IAuthClient
     // interface. This includes updating UI when auth information is available.
 
-    public interface IAuthClient<TAuthPrivData>
-    {
-        void BeforeLogin(object sender, EventArgs e);
-        void BeforeLogout(object sender, EventArgs e);
-        TAuthPrivData CreateEmptyAuthPrivData();
-        void SetAuthenticated(bool fAuthenticated);
-        bool AuthHasPrivileges();
-        bool IsCacheDataValid(TAuthPrivData data, string sIdentity, string sTenant);
-        void LoadPrivileges();
-    }
-
     public class Auth<TAuthPrivData>
     {
+        public interface IAuthClient
+        {
+            void BeforeLogin(object sender, EventArgs e);
+            void BeforeLogout(object sender, EventArgs e);
+            TAuthPrivData CreateEmptyAuthPrivData();
+            void SetAuthenticated(bool fAuthenticated);
+            bool AuthHasPrivileges();
+            bool IsCacheDataValid(TAuthPrivData data, string sIdentity, string sTenant);
+            void LoadPrivileges();
+        }
+
         private HttpRequest m_request;
         private string m_sAuthReturnAddress;
         private HttpContextBase m_contextBase;
         private IOwinContext m_owinContext;
         private StateBag m_viewState;
         private HttpSessionState m_session;
-        private IAuthClient<TAuthPrivData> m_iclient;
+        private IAuthClient m_iclient;
 
         public Auth(
             HttpRequest request,
@@ -67,7 +67,7 @@ namespace TCore.MsalWeb
             IOwinContext iOwinContext,
             StateBag viewState,
             string sReturnAddress,
-            IAuthClient<TAuthPrivData> authClient)
+            IAuthClient authClient)
         {
             m_sAuthReturnAddress = sReturnAddress;
             m_request = request;

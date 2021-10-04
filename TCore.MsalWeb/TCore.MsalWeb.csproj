@@ -14,13 +14,15 @@
     <Authors>Robert Little</Authors>
     <Company>Robert Little</Company>
     <Product>TCore.MsalWeb</Product>
-    <Description>MSAL 2.0 and aspx web page supoort</Description>
+    <Description>MSAL 2.0 and aspx web page supoort
+Supports authenticated web apis as well</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Deterministic>true</Deterministic>
-    <PackageReleaseNotes>Initial implementation refactored from RWLLPracticeTool
-
-This release matches https://github.com/rlittletht/TCore.MsalWeb/commit/42e29ca565bd8785a0f1dc85711fed9fe5f79e42
+    <PackageReleaseNotes>Includes support for authenticated web apis
 </PackageReleaseNotes>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <Version>2.0.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,17 +43,18 @@ This release matches https://github.com/rlittletht/TCore.MsalWeb/commit/42e29ca5
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Identity.Client" Version="2.6.2" />
-    <PackageReference Include="Microsoft.Owin" Version="4.0.1" />
-    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.0.1" />
-    <PackageReference Include="Microsoft.Owin.Security" Version="4.0.1" />
-    <PackageReference Include="Microsoft.Owin.Security.Cookies" Version="4.0.1" />
-    <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.0.1" />
+    <PackageReference Include="Microsoft.Owin" Version="4.0.0" />
+    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.0.0" />
+    <PackageReference Include="Microsoft.Owin.Security" Version="4.0.0" />
+    <PackageReference Include="Microsoft.Owin.Security.Cookies" Version="4.0.0" />
+    <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.0.0" />
     <PackageReference Include="Owin" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
