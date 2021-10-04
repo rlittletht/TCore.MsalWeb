@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -328,6 +329,14 @@ namespace TCore.MsalWeb
             return tskString.Result;
         }
 
+        public async Task CopyContentToFileStream(HttpResponseMessage resp, Stream stmOut)
+        {
+	        Stream stm = await resp.Content.ReadAsStreamAsync();
+
+	        await stm.CopyToAsync(stmOut);
+        }
+        
+        
         public string GetAccessTokenForScope(string[] rgs)
         {
             return m_accessTokenProvider.GetAccessTokenForScope(rgs);
