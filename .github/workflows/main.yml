@@ -1,0 +1,36 @@
+name: PublishPackage
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the nuget-publish branch
+  push:
+    branches: [ nuget-publish ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    environment: Publish
+    
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+          # use 3.1.x for netstandard; 5.0.x for .net framework 4.x
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build TCore.MsalWeb
+        run: dotnet build --configuration Release --no-restore
+      - name: Publish TCore.MsalWeb
+        run: dotnet nuget push TCore.MsalWeb/bin/Release/*.nupkg -s https://thetaget.azurewebsites.net/nuget -k ${NUGET_KEY} --no-symbols --skip-duplicate
+        env:
+          NUGET_KEY: ${{secrets.THETAGET_API_KEY}}
