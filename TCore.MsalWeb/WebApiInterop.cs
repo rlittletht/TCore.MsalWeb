@@ -169,6 +169,32 @@ namespace TCore.MsalWeb
 
         #region Helper Service Calls
 
+        public HttpResponseMessage CallServiceApiDirect(string fullPath, bool fRequireAuth)
+        {
+            string sAccessToken = fRequireAuth ? m_accessTokenProvider.GetAccessToken() : null;
+            if (sAccessToken == null && fRequireAuth == true)
+                throw new Exception("Authentication failed, no access token");
+
+            HttpClient client = HttpClientCreate(sAccessToken);
+
+            return GetServiceResponse(client, fullPath);
+        }
+
+        public T CallServiceApiDirect<T>(string fullPath, bool fRequireAuth)
+        {
+            HttpResponseMessage resp = CallServiceApiDirect(fullPath, fRequireAuth);
+
+            if (resp.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new Exception("Service returned 'user is unauthorized'");
+            }
+
+            string sJson = GetContentAsString(resp);
+
+            JavaScriptSerializer jsc = new JavaScriptSerializer();
+
+            return jsc.Deserialize<T>(sJson);
+        }
         /*----------------------------------------------------------------------------
             %%Function: CallService
         	%%Qualified: TCore.MsalWeb.WebApiInterop.ProcessResponse
